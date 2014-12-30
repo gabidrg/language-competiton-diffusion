@@ -1,0 +1,46 @@
+<repast.simphony.data2.engine.DataSetDescriptor>
+  <name>A Data Set</name>
+  <type>AGGREGATE</type>
+  <inclTick>true</inclTick>
+  <inclBatchRun>false</inclBatchRun>
+  <inclRandomSeed>false</inclRandomSeed>
+  <scheduleParams>
+    <start>1.0</start>
+    <interval>1.0</interval>
+    <priority>-Infinity</priority>
+    <duration>-1.0</duration>
+    <frequency>REPEAT</frequency>
+  </scheduleParams>
+  <methodDataSources class="linked-hash-map">
+    <entry>
+      <string>Speaking X</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Speaking X</id>
+        <className>LanguageCompetitionDiffusion.Agent</className>
+        <methodName>getSpeakersX</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Speaking Y</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Speaking Y</id>
+        <className>LanguageCompetitionDiffusion.Agent</className>
+        <methodName>getSpeakersY</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Speaking XY</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Speaking XY</id>
+        <className>LanguageCompetitionDiffusion.Agent</className>
+        <methodName>getSpeakersXY</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+  </methodDataSources>
+  <countSources class="linked-hash-map"/>
+  <customNADataSources class="linked-hash-map"/>
+  <customAggDataSources class="linked-hash-map"/>
+</repast.simphony.data2.engine.DataSetDescriptor>

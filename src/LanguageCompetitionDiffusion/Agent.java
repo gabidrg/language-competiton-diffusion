@@ -20,7 +20,6 @@ public class Agent {
 	private int numberOfAgentTypes = 3;
 	private String id;
 	private int type;
-	public ArrayList<Feature> features;
 	private int oldType;
 	private int speakingX;
 	private int speakingY;
@@ -33,30 +32,30 @@ public class Agent {
 	public int speakersXY;
 	public double similarityIndex;
 	public int numFeatures;
+	public ArrayList<Feature> features;
 
 	public Agent(String id, int agentType) {
 		if (agentType == 0) {
 			this.id = id;
 			// The agent is randomly a type from 1 to numberOfAgentTypes
 			// Language mapping goes as: Language X = 1, Language Y = 2, Bilinguals speaking XY = 3
-			// TODO: implement ratio distribution of types with random positioning
 			this.type = RandomHelper.nextIntFromTo(1, numberOfAgentTypes);
 		}
 		else {
 			this.id = id;
 			this.type = agentType;
 		}
-		// build features
+		// Build features and populate features and traits according to parameters
 		Parameters p = RunEnvironment.getInstance().getParameters();
 		this.numFeatures = (Integer)p.getValue("numFeatures");
 		int numFeatureTraits = (Integer)p.getValue("numFeatureTraits");
 		int randomFeatures = (Integer)p.getValue("randomFeatures");
 		ArrayList<Feature> features = new ArrayList<Feature>();
 		
-		// language is always first ArrayList object
+		// Language is always first ArrayList object/feature
 		features.add(new Feature(0, this.type, true));
 
-		// randomly populate all remaining features
+		// Randomly populate all remaining features
 	    for (int i = 1; i < numFeatures; i++) {
 	    	int value = RandomHelper.nextIntFromTo(1, numFeatureTraits);
 	    	boolean active = (randomFeatures == 0) ? true : (RandomHelper.nextIntFromTo(0, 1) == 0);
@@ -72,14 +71,16 @@ public class Agent {
 	// Schedule the step method for agents.
 	@ScheduledMethod(start = 0, interval = 1, priority = 1)
 	public void step() {
-		System.out.println("=== Agent ID: " + this.id);
+		//System.out.println("STEP === Agent ID: " + this.id);
+		
 		this.imitated = false;
+		
 		// Get the context and grid, query Moore neighbors in grid
 		Context<Object> context = (Context)ContextUtils.getContext(this);
 		Grid<Object> grid = (Grid)context.getProjection("Grid");
 		MooreQuery<Object> query = new MooreQuery<Object>(grid, this);
 		
-		// get a random neighbor agent, Moore query always returns 8 results for fully populated grids
+		// Get a random neighbor agent, Moore query always returns 8 results for fully populated grids
     	int i = 1;
 		while (this.imitated == false && i <= 1) {
 	    	int randomAgent = RandomHelper.nextIntFromTo(1, 8);
@@ -87,21 +88,21 @@ public class Agent {
 				Agent neighbor = isAgent(result);
 				if (neighbor != null) {
 					if (i == randomAgent) {
+						if (this.canImitate(this.features, neighbor.features)) {
+							this.imitated = this.imitate(query, neighbor.features);
+							//System.out.println("Imitated: " + this.imitated);
+							break;
+						}
+						
 						//System.out.println("Neighbor ID: " + neighbor.id);
 						//System.out.println("Agent: " + this.features);
 						//System.out.println("Neighbor: " + neighbor.features);
 	
-						if (this.canImitate(this.features, neighbor.features)) {
-							this.imitated = this.imitate(query, neighbor.features);
-							System.out.println("Imitated: " + this.imitated);
-							break;
-						}
 					}
 					i++;
 				}
 			}
 		}
-		
 	}
 	
 	private boolean canImitate(ArrayList<Feature> agentFeatures, ArrayList<Feature> neighborFeatures) {
@@ -109,6 +110,8 @@ public class Agent {
 		double activeFeaturesAgent = 0;
 		double affinityIndex = 0;
 	    double roulette = RandomHelper.nextDoubleFromTo(0, 1);
+	    
+	    // Compute affinityIndex
 		for (int i = 0; i < agentFeatures.size(); i++) {
 			if (agentFeatures.get(i).getActive()) {
 				activeFeaturesAgent++;
@@ -122,12 +125,13 @@ public class Agent {
 				similarCount++;
 			}
 		}
-		System.out.println("Agent features:    " + agentFeatures);
-		System.out.println("Neighbor features: " + neighborFeatures);
-		System.out.println("Active features: " + activeFeaturesAgent);
-		System.out.println("Similar features: " + similarCount);
 		affinityIndex = similarCount / activeFeaturesAgent;
-		System.out.println("Affinity index: " + affinityIndex);
+
+		//System.out.println("Agent features:    " + agentFeatures);
+		//System.out.println("Neighbor features: " + neighborFeatures);
+		//System.out.println("Active features: " + activeFeaturesAgent);
+		//System.out.println("Similar features: " + similarCount);
+		//System.out.println("Affinity index: " + affinityIndex);
 		//System.out.println("Roulette: " + roulette);
 
 		return roulette < affinityIndex ? true : false;
@@ -163,19 +167,23 @@ public class Agent {
 		// get model parameters
 		Parameters p = RunEnvironment.getInstance().getParameters();
 		double statusX = (Double)p.getValue("statusX");
+		//System.out.println("statusX: " + statusX);
+
 		double statusY = 1 - statusX;
 		double volatility = (Double)p.getValue("volatility");
 		double cXYtoX = (Double)p.getValue("cXYtoX");
 		double cXYtoY = (Double)p.getValue("cXYtoY");
 		double cXtoXY = (Double)p.getValue("cXtoXY");
 		double cYtoXY = (Double)p.getValue("cYtoXY");
+		double mortalityRate = (Double)p.getValue("mortalityRate");
 		int neighborhoodType = (Integer)p.getValue("neighborhoodType");
 		int totalAgents = (Integer)p.getValue("initialNumAgents");
 		
 		// compute probability to adopt Vertical transmission model based on global mortality rate 8.37/1000
 		// true adopts vertical model, false adopts horizontal model
-		boolean verticalModel = (RandomHelper.nextIntFromTo(0, 118) == 0);
-		
+		int mortalityPeak = ((int) (1000 / mortalityRate) - 1);
+		boolean verticalModel = (RandomHelper.nextIntFromTo(0, mortalityPeak) == 0);
+
 		// initialize reporting variables
 		speakersX = this.getSpeakersX();
 		speakersY = this.getSpeakersY();
@@ -183,7 +191,6 @@ public class Agent {
 		
 		// Moore neighborhood
 		if (neighborhoodType == 1) {
-			
 			// Check Moore neighbors and sum speaker types
 			for (Object result : query.query()){
 				Agent agent = isAgent(result);
@@ -306,9 +313,9 @@ public class Agent {
 		}
 		*/
 		
-		System.out.println("Start language: " + this.getOldType());
-		System.out.println(transmissions);
-		System.out.println("End language: " + this.getType());
+		//System.out.println("Start language: " + this.getOldType());
+		//System.out.println(transmissions);
+		//System.out.println("End language: " + this.getType());
 		
 		// imitate 1 random active feature, key 0 is language and is already processed
 		ArrayList<Integer> activeFeatures = new ArrayList<Integer>();
@@ -321,10 +328,10 @@ public class Agent {
 		if (activeFeatures.size() > 0) {
 			int roulette = RandomHelper.nextIntFromTo(1, activeFeatures.size()); 
 			int selectedFeatureId = activeFeatures.get(roulette - 1);
-			System.out.println("Selected feature: " + selectedFeatureId);
+			//System.out.println("Selected feature: " + selectedFeatureId);
 
 			this.features.set(selectedFeatureId, neighborFeatures.get(selectedFeatureId));
-			System.out.println("Imitated features: " + this.features);
+			//System.out.println("Imitated features: " + this.features);
 		}
 		
 		// calculate neighborhood similarity
@@ -425,14 +432,14 @@ public class Agent {
 	
 	private NeighborhoodCell getNeighborhoodCell() {
         final GridPoint location = getGrid().getLocation(this);
-        System.out.println("Location: " + location);
+        //System.out.println("Location: " + location);
         final Iterable<Object> objects = getGrid().getObjectsAt(
                         location.getX(), location.getY());
 
         for (final Object object : objects) {
-                if (object instanceof NeighborhoodCell) {
-                        return (NeighborhoodCell) object; 
-                }
+        	if (object instanceof NeighborhoodCell) {
+        		return (NeighborhoodCell) object; 
+            }
         }
 
         return null;

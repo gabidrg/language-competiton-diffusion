@@ -1,6 +1,6 @@
-<repast.simphony.visualization.engine.DefaultDisplayDescriptor>
+<repast.simphony.visualization.engine.CartesianDisplayDescriptor>
   <name>2D Display</name>
-  <type>TWO_D</type>
+  <type>2D</type>
   <styles>
     <entry>
       <string>LanguageCompetitionDiffusion.Agent</string>
@@ -20,11 +20,12 @@
     <start>1.0</start>
     <interval>1.0</interval>
     <priority>-Infinity</priority>
+    <pType>LAST</pType>
     <duration>-1.0</duration>
     <frequency>REPEAT</frequency>
+    <hashCode>0</hashCode>
   </schedParams>
   <layoutClassName>foo.bar.baz</layoutClassName>
-  <valueLayerStyleName>LanguageCompetitionDiffusion.NeighborhoodLayerStyleOGL</valueLayerStyleName>
   <layoutProjection>Grid</layoutProjection>
   <layoutInterval>0</layoutInterval>
   <layerOrder>
@@ -37,12 +38,9 @@
     <repast.simphony.scenario.data.ProjectionData>
       <id>Grid</id>
       <attributes/>
-      <type>GRID</type>
+      <type>grid</type>
     </repast.simphony.scenario.data.ProjectionData>
   </projections>
-  <valueLayers>
-    <string>neighborhoodLayer</string>
-  </valueLayers>
   <visualizationProperties class="repast.simphony.visualization.UnitSizeLayoutProperties">
     <unitSize>10.0</unitSize>
   </visualizationProperties>
@@ -56,16 +54,16 @@
             <string>repast.simphony.visualization.grid.GridDecorator</string>
             <map>
               <entry>
+                <string>COLOR</string>
+                <int>-16777216</int>
+              </entry>
+              <entry>
                 <string>UNIT_SIZE</string>
                 <float>10.0</float>
               </entry>
               <entry>
                 <string>SHOW</string>
                 <boolean>false</boolean>
-              </entry>
-              <entry>
-                <string>COLOR</string>
-                <int>-16777216</int>
               </entry>
             </map>
           </entry>
@@ -80,4 +78,8 @@
     <blue>255</blue>
     <alpha>255</alpha>
   </backgroundColor>
-</repast.simphony.visualization.engine.DefaultDisplayDescriptor>
+  <valueLayerStyleName>LanguageCompetitionDiffusion.NeighborhoodLayerStyleOGL</valueLayerStyleName>
+  <valueLayers>
+    <string>neighborhoodLayer</string>
+  </valueLayers>
+</repast.simphony.visualization.engine.CartesianDisplayDescriptor>

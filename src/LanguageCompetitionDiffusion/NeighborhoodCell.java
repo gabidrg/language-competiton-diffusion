@@ -18,7 +18,7 @@ public class NeighborhoodCell {
 	public void stepNeighborhood() {
 		final GridValueLayer neighborhoodLayer = (GridValueLayer) ContextUtils
                 								.getContext(this).getValueLayer("neighborhoodLayer");
-		System.out.println("Similarity: " + this.getSimilarityIndex());
+		//System.out.println("Similarity: " + this.getSimilarityIndex());
 		neighborhoodLayer.set(this.getSimilarityIndex(), x, y);
 	}
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <parameters>
 					<parameter name="worldHeight" displayName="World Height" type="int" 
-						defaultValue="20" 
+						defaultValue="40" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
@@ -24,34 +24,34 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="neighborhoodType" displayName="Query type (1: Moore, 2: Total)" type="int" 
+				<parameter name="neighborhoodType" displayName="Query type (1: Moore)" type="int" 
 						defaultValue="1" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
 				<parameter name="initialNumAgents" displayName="Initial Num Agents" type="int" 
-						defaultValue="400" 
+						defaultValue="1600" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
 				<parameter name="numFeatures" displayName="Number of cultural features" type="int" 
-						defaultValue="2" 
+						defaultValue="10" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
 		
 				<parameter name="randomFeatures" displayName="Randomize features (0: false; 1: true)" type="int" 
-						defaultValue="0" 
+						defaultValue="1" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
 		
 				<parameter name="worldWidth" displayName="World Width" type="int" 
-						defaultValue="20" 
+						defaultValue="40" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
@@ -69,7 +69,7 @@
 									
 		/>
 				<parameter name="numFeatureTraits" displayName="Number of feature traits" type="int" 
-						defaultValue="2" 
+						defaultValue="4" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									

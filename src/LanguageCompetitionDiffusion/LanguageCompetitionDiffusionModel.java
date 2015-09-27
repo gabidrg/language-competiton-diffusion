@@ -26,15 +26,17 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
 		
 		// Create a new 2D torroidal, single occupancy grid on which the agents will live.
 		final Grid<Object> grid = GridFactoryFinder
-				.createGridFactory(null).
-				createGrid(
+				.createGridFactory(null)
+				.createGrid(
 						"Grid", 
 						context, 
 						new GridBuilderParameters<Object>(
 								new WrapAroundBorders(), 
 								new SimpleGridAdder<Object>(), 
 								true, 
-								width, height));
+								width, 
+								height)
+							);
 		
 		if ((percentX > 0 && percentY > 0) && (percentX < 100 && percentY < 100)) {
 			int[] agentGroups = new int[3];
@@ -72,7 +74,8 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
 				"neighborhoodLayer", 
 				true, 
 				new WrapAroundBorders(), 
-				width, height);
+				width, 
+				height);
 		
 		context.addValueLayer(neighborhoodLayer);
 		
@@ -85,7 +88,7 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
             }
 		}
 		
-		System.out.println("Layer: " + neighborhoodLayer.getName());
+		//System.out.println("Layer: " + neighborhoodLayer.getName());
 		
 		return context;
 	}

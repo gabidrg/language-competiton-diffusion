@@ -1,20 +1,29 @@
-<repast.simphony.visualization.engine.DefaultDisplayDescriptor>
-  <name>3D Display</name>
-  <type>THREE_D</type>
+<repast.simphony.visualization.engine.CartesianDisplayDescriptor>
+  <name>2D Display</name>
+  <type>2D</type>
   <styles>
     <entry>
       <string>LanguageCompetitionDiffusion.Agent</string>
-      <string>LanguageCompetitionDiffusion.AgentStyle</string>
+      <string>LanguageCompetitionDiffusion.AgentStyle2D</string>
     </entry>
   </styles>
+  <editedStyles>
+    <entry>
+      <string>LanguageCompetitionDiffusion.Agent</string>
+      <null/>
+    </entry>
+  </editedStyles>
   <netStyles/>
+  <editedNetStyles/>
   <frequency>ON_MOVE</frequency>
   <schedParams>
     <start>1.0</start>
     <interval>1.0</interval>
     <priority>-Infinity</priority>
+    <pType>LAST</pType>
     <duration>-1.0</duration>
     <frequency>REPEAT</frequency>
+    <hashCode>0</hashCode>
   </schedParams>
   <layoutClassName>foo.bar.baz</layoutClassName>
   <layoutProjection>Grid</layoutProjection>
@@ -29,12 +38,11 @@
     <repast.simphony.scenario.data.ProjectionData>
       <id>Grid</id>
       <attributes/>
-      <type>GRID</type>
+      <type>grid</type>
     </repast.simphony.scenario.data.ProjectionData>
   </projections>
-  <valueLayers/>
   <visualizationProperties class="repast.simphony.visualization.UnitSizeLayoutProperties">
-    <unitSize>0.06</unitSize>
+    <unitSize>10.0</unitSize>
   </visualizationProperties>
   <projectionDescriptors>
     <entry>
@@ -46,16 +54,16 @@
             <string>repast.simphony.visualization.grid.GridDecorator</string>
             <map>
               <entry>
+                <string>COLOR</string>
+                <int>-16777216</int>
+              </entry>
+              <entry>
                 <string>UNIT_SIZE</string>
-                <float>0.06</float>
+                <float>10.0</float>
               </entry>
               <entry>
                 <string>SHOW</string>
                 <boolean>false</boolean>
-              </entry>
-              <entry>
-                <string>COLOR</string>
-                <int>-1</int>
               </entry>
             </map>
           </entry>
@@ -64,4 +72,14 @@
     </entry>
   </projectionDescriptors>
   <props/>
-</repast.simphony.visualization.engine.DefaultDisplayDescriptor>
+  <backgroundColor>
+    <red>255</red>
+    <green>255</green>
+    <blue>255</blue>
+    <alpha>255</alpha>
+  </backgroundColor>
+  <valueLayerStyleName>LanguageCompetitionDiffusion.NeighborhoodLayerStyleOGL</valueLayerStyleName>
+  <valueLayers>
+    <string>neighborhoodLayer</string>
+  </valueLayers>
+</repast.simphony.visualization.engine.CartesianDisplayDescriptor>

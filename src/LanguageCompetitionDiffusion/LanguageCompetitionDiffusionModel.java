@@ -23,6 +23,7 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
 		int width = (Integer)p.getValue("worldWidth");
 		int percentX = (Integer)p.getValue("percentX");
 		int percentY = (Integer)p.getValue("percentY");
+		int agentId = 0;
 		
 		// Create a new 2D torroidal, single occupancy grid on which the agents will live.
 		final Grid<Object> grid = GridFactoryFinder
@@ -50,12 +51,13 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
 					while (l < agentGroups[k]) {
 						int x = RandomHelper.nextIntFromTo(0, width);
 						int y = RandomHelper.nextIntFromTo(0, height);
-						System.out.println(grid.getObjectAt(x, y));
+						//System.out.println(grid.getObjectAt(x, y));
 						while (grid.getObjectAt(x, y) == null) {
-							Agent agent = new Agent("Agent-" + k, agentType);
+							Agent agent = new Agent("Agent-" + agentId, agentType);
 							context.add(agent);
 							grid.moveTo(agent, x, y);
 							l++;
+							agentId++;
 						}
 					}	
 				}
@@ -63,8 +65,9 @@ public class LanguageCompetitionDiffusionModel implements ContextBuilder<Object>
 		else {
 			for (int i = 0; i < width; ++i) {
 	            for (int j = 0; j < height; ++j) {
-	            	Agent agent = new Agent("Agent-"+i, 0);
+	            	Agent agent = new Agent("Agent-" + agentId, 0);
 	            	context.add(agent);
+	            	agentId++;
                     grid.moveTo(agent, i, j);
 	            }
 			}

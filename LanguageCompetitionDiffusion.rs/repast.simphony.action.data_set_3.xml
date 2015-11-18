@@ -1,5 +1,5 @@
 <repast.simphony.data2.engine.DataSetDescriptor>
-  <name>Speakers aggregated</name>
+  <name>Similarity index aggregated</name>
   <type>AGGREGATE</type>
   <inclTick>true</inclTick>
   <inclBatchRun>false</inclBatchRun>
@@ -11,35 +11,44 @@
     <pType>LAST</pType>
     <duration>-1.0</duration>
     <frequency>REPEAT</frequency>
-    <hashCode>0</hashCode>
+    <hashCode>-941147596</hashCode>
   </scheduleParams>
   <atEnd>false</atEnd>
   <methodDataSources class="linked-hash-map">
     <entry>
-      <string>Speaking X</string>
+      <string>Similarity index mean</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>Speaking X</id>
+        <id>Similarity index mean</id>
         <className>LanguageCompetitionDiffusion.Agent</className>
-        <methodName>getSpeakersX</methodName>
+        <methodName>getAgentSimilarityIndex</methodName>
         <aggType>MEAN</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>
-      <string>Speaking Y</string>
+      <string>Similarity index standard deviation</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>Speaking Y</id>
+        <id>Similarity index standard deviation</id>
         <className>LanguageCompetitionDiffusion.Agent</className>
-        <methodName>getSpeakersY</methodName>
-        <aggType>MEAN</aggType>
+        <methodName>getAgentSimilarityIndex</methodName>
+        <aggType>STD_DEV</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>
-      <string>Speaking XY</string>
+      <string>Similarity index min</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>Speaking XY</id>
+        <id>Similarity index min</id>
         <className>LanguageCompetitionDiffusion.Agent</className>
-        <methodName>getSpeakersXY</methodName>
-        <aggType>MEAN</aggType>
+        <methodName>getAgentSimilarityIndex</methodName>
+        <aggType>MIN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Similarity index max</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Similarity index max</id>
+        <className>LanguageCompetitionDiffusion.Agent</className>
+        <methodName>getAgentSimilarityIndex</methodName>
+        <aggType>MAX</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
   </methodDataSources>

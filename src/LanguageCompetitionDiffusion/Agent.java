@@ -15,6 +15,13 @@ import repast.simphony.space.grid.Grid;
 import repast.simphony.space.grid.GridPoint;
 import repast.simphony.util.ContextUtils;
 
+/**
+ * This is the main Agent class used in the model.
+ */
+/**
+ * @author gabi
+ *
+ */
 public class Agent {
 	
 	private int numberOfAgentTypes = 3;
@@ -34,17 +41,29 @@ public class Agent {
 	public int numFeatures;
 	public ArrayList<Feature> features;
 
+	/**
+	 * The agent is randomly a type from 1 to numberOfAgentTypes. 
+	 * Language mapping goes as: Language X = 1, Language Y = 2, Bilinguals speaking XY = 3.
+	 * 
+	 * An agent also has a culture, defined as a configurable number of cultural features 
+	 * and each feature has a configurable number of variations. Please see the scenario 
+	 * configuration UI. Each agent is instantiated with a random distribution of features 
+	 * and feature variations.
+	 * 
+	 * @param id Agent ID
+	 * @param agentType Agent type, speaking X = 1, speaking Y = 2, bilingual speaker of XY = 3
+	 */
 	public Agent(String id, int agentType) {
+		
 		if (agentType == 0) {
 			this.id = id;
-			// The agent is randomly a type from 1 to numberOfAgentTypes
-			// Language mapping goes as: Language X = 1, Language Y = 2, Bilinguals speaking XY = 3
 			this.type = RandomHelper.nextIntFromTo(1, numberOfAgentTypes);
 		}
 		else {
 			this.id = id;
 			this.type = agentType;
 		}
+		
 		// Build features and populate features and traits according to parameters
 		Parameters p = RunEnvironment.getInstance().getParameters();
 		this.numFeatures = (Integer)p.getValue("numFeatures");
@@ -68,16 +87,22 @@ public class Agent {
 
 	}
 	
-	// Schedule the step method for agents.
+	/**
+	 * This is the method executed at every iteration, for every agent in the grid.
+	 * A step involves selecting the Moore neighborhood of the active agent, randomly select
+	 * a neighbor agent (the passive agent), calculating the similarity index between active and
+	 * passive agent, calculating the probability to execute the transmission set (language + cultural transaction).
+	 */
 	@ScheduledMethod(start = 0, interval = 1, priority = 1)
 	public void step() {
-		//System.out.println("STEP === Agent ID: " + this.id);
 		
 		this.imitated = false;
 		
 		// Get the context and grid, query Moore neighbors in grid
-		Context<Object> context = (Context)ContextUtils.getContext(this);
-		Grid<Object> grid = (Grid)context.getProjection("Grid");
+		@SuppressWarnings("unchecked")
+		Context<Object> context = (Context<Object>)ContextUtils.getContext(this);
+		@SuppressWarnings("unchecked")
+		Grid<Object> grid = (Grid<Object>)context.getProjection("Grid");
 		MooreQuery<Object> query = new MooreQuery<Object>(grid, this);
 		
 		// Get a random neighbor agent, Moore query always returns 8 results for fully populated grids
@@ -90,14 +115,8 @@ public class Agent {
 					if (i == randomAgent) {
 						if (this.canImitate(this.features, neighbor.features)) {
 							this.imitated = this.imitate(query, neighbor.features);
-							//System.out.println("Imitated: " + this.imitated);
 							break;
 						}
-						
-						//System.out.println("Neighbor ID: " + neighbor.id);
-						//System.out.println("Agent: " + this.features);
-						//System.out.println("Neighbor: " + neighbor.features);
-	
 					}
 					i++;
 				}
@@ -105,6 +124,14 @@ public class Agent {
 		}
 	}
 	
+	/**
+	 * This is the method returns TRUE if the active agent and the passive agent
+	 * should interact, with a probability direct proportional with their cultural similarity index.
+	 * 
+	 * @param agentFeatures The ArrayList of cultural features of the active agent
+	 * @param neighborFeatures The ArrayList of cultural features of the passive agent
+	 * @return boolean TRUE if a transaction set should be operated between the two agents.
+	 */
 	private boolean canImitate(ArrayList<Feature> agentFeatures, ArrayList<Feature> neighborFeatures) {
 		double similarCount = 0;
 		double activeFeaturesAgent = 0;
@@ -127,20 +154,33 @@ public class Agent {
 		}
 		affinityIndex = similarCount / activeFeaturesAgent;
 
-		//System.out.println("Agent features:    " + agentFeatures);
-		//System.out.println("Neighbor features: " + neighborFeatures);
-		//System.out.println("Active features: " + activeFeaturesAgent);
-		//System.out.println("Similar features: " + similarCount);
-		//System.out.println("Affinity index: " + affinityIndex);
-		//System.out.println("Roulette: " + roulette);
-
 		return roulette < affinityIndex ? true : false;
 	}
 	
+	/**
+	 * Method to build and execute a cultural transmission set and update the model statistics.
+	 * Language is the feature 0 of the feature set. Mortality rate sets the probability for the
+	 * adoption of the vertical model or horizontal model for language transmission. For each
+	 * model, the probabilities of changing to language X, Y or XY are computed and a transmission
+	 * set of potential transition languages is built. The final language resulting from the
+	 * cultural transaction is determined using a roulette wheel selection algorithm.
+	 * 
+	 * After the language transaction has been operated, a random cultural feature is selected
+	 * from the culture set of the passive agent, satisfying the condition not to be already
+	 * present in the culture set of the active agent. The selected feature is copied in the
+	 * culture set of the active agent.
+	 * 
+	 * All model statistics are updated after the execution of the transmission set.
+	 *  
+	 * @see Transmission
+	 * 
+	 * @param query The 2 dimensional Moore neighborhood query for the active agent
+	 * @param neighborFeatures The feature set (culture) of the passive agent (neighbor chosen for interaction)
+	 * @return Returns TRUE if a cultural transmission set has been successfully operated
+	 */
 	private boolean imitate(MooreQuery<Object> query, ArrayList<Feature> neighborFeatures) {
 
 		// deal with language first!
-		
 		// initialize group variables
 		speakingX = 0;      // number of neighbors speaking X
 		speakingY = 0;		// number of neighbors speaking Y
@@ -152,8 +192,8 @@ public class Agent {
 		// common to vertical and horizontal models
 		double pXtoX = 0;
 		double pYtoY = 0;
-		double pXYtoY = 0;  
 		// vertical model specific
+		double pXYtoY = 0;  
 		double pXYtoX = 0;
 		double pXYtoXY = 0;
 		// horizontal model specific
@@ -167,8 +207,6 @@ public class Agent {
 		// get model parameters
 		Parameters p = RunEnvironment.getInstance().getParameters();
 		double statusX = (Double)p.getValue("statusX");
-		//System.out.println("statusX: " + statusX);
-
 		double statusY = 1 - statusX;
 		double volatility = (Double)p.getValue("volatility");
 		double cXYtoX = (Double)p.getValue("cXYtoX");
@@ -185,10 +223,6 @@ public class Agent {
 		boolean verticalModel = (RandomHelper.nextIntFromTo(0, mortalityPeak) == 0);
 
 		// initialize reporting variables
-		speakersX = this.getSpeakersX();
-		speakersY = this.getSpeakersY();
-		speakersXY = this.getSpeakersXY();
-		
 		// Moore neighborhood
 		if (neighborhoodType == 1) {
 			// Check Moore neighbors and sum speaker types
@@ -204,13 +238,11 @@ public class Agent {
 					neighborCount++;
 				}
 			}
-			
 			// compute local densities
 			if (neighborCount > 0) {
 				densityX = (double) speakingX / neighborCount;
 				densityY = (double) speakingY / neighborCount;
 			}
-
 		}
 		
 		// total population based neighborhood, similar to fully connected network
@@ -218,7 +250,6 @@ public class Agent {
 			densityX = (double) speakersX / totalAgents;
 			densityY = (double) speakersY / totalAgents;
 		}
-
 
 		/* Transmission probabilities for VModel:
 		* pXtoX
@@ -282,7 +313,6 @@ public class Agent {
 				break;
 		}
 		
-		
 		// before operating transmission archive existing type for debugging
 		this.setOldType(this.getType());
 		
@@ -301,22 +331,6 @@ public class Agent {
 			}
 		}
 		
-		/*
-		if (this.getOldType() == 3 && this.getType() != 3) {
-			System.out.println("densityY: " + densityY);
-			System.out.println("volatility: " + volatility);
-			System.out.println("yPowA: " + yPowA);
-			System.out.println("Start language: " + this.getOldType());
-			System.out.println(transmissions);
-			System.out.println("End language: " + this.getType());
-			System.out.println("X: " + speakersX + " Y: " + speakersY + " XY: " + speakersXY);
-		}
-		*/
-		
-		//System.out.println("Start language: " + this.getOldType());
-		//System.out.println(transmissions);
-		//System.out.println("End language: " + this.getType());
-		
 		// imitate 1 random active feature, key 0 is language and is already processed
 		ArrayList<Integer> activeFeatures = new ArrayList<Integer>();
 		for (int i = 1; i < neighborFeatures.size(); i++) {
@@ -328,10 +342,7 @@ public class Agent {
 		if (activeFeatures.size() > 0) {
 			int roulette = RandomHelper.nextIntFromTo(1, activeFeatures.size()); 
 			int selectedFeatureId = activeFeatures.get(roulette - 1);
-			//System.out.println("Selected feature: " + selectedFeatureId);
-
 			this.features.set(selectedFeatureId, neighborFeatures.get(selectedFeatureId));
-			//System.out.println("Imitated features: " + this.features);
 		}
 		
 		// calculate neighborhood similarity
@@ -351,13 +362,38 @@ public class Agent {
 		final NeighborhoodCell cell = getNeighborhoodCell();
 		cell.setSimilarityIndex(this.similarityIndex);
 		
+		speakersX = this.getSpeakersX();
+		speakersY = this.getSpeakersY();
+		speakersXY = this.getSpeakersXY();
+		
 		return true;
 	}
 	
+	/**
+	 * Fitness proportionate selection, or the roulette wheel selection, is a genetic 
+	 * operator used for selecting solutions for recombination based on their fitness level.
+	 * The basic part of the selection process is to stochastically select from one generation to create 
+	 * the basis of the next generation. The requirement is that the fittest individuals have a greater chance 
+	 * of survival than weaker ones. This replicates nature in that fitter individuals will tend to have a 
+	 * better probability of survival and will go forward to form the mating pool for the next generation. 
+	 * Weaker individuals are not without a chance. In nature such individuals may have genetic coding that 
+	 * may prove useful to future generations.
+	 * 
+	 * In this model we choose from a set of target languages (X, Y, XY), each of them having a
+	 * probability to be selected based on their usage and utility. The highest the probability,
+	 * the greater the chance to be the result of the current cultural transmission. However, there
+	 * is a chance that least probable/suitable target language might be chosen. For example, a bilingual
+	 * speaker of XY might end up speaking the low status language X even if the theoretical computed probability 
+	 * of this transmission is lower than the probability to adopt the majority language Y.
+	 * 
+	 *  e.g. speaker X acquires target language Y and becomes bilingual.
+	 * 
+	 * @param transmissions A set of potential target languages along with their probabilities to be adopted.
+	 * @return
+	 */
 	static int selectRouletteWheel(ArrayList<Transmission> transmissions) {
 	    int selectedLanguage = 99;
 	    double roulette = RandomHelper.nextDoubleFromTo(0, 1);
-		//System.out.println("Roulette: " + roulette);
 	    double currentProbability = 0;
 	    for (int i = 0; i < transmissions.size(); i++) {
 	        currentProbability += transmissions.get(i).getProbability();            
@@ -366,9 +402,16 @@ public class Agent {
 	    	    return selectedLanguage;        
 	        }
 	    }
+	    
 	    return selectedLanguage;        
 	}
 	
+	/**
+	 * Counts the number of speakers of a specific language.
+	 * 
+	 * @param type
+	 * @return
+	 */
 	private int countSpeakers(int type) {
 		@SuppressWarnings("unchecked")
 		final Iterable<Agent> agents = RunState.getInstance().getMasterContext().getObjects(Agent.class);
@@ -383,31 +426,70 @@ public class Agent {
 		return speakers;
 	}
 	
+	/**
+	 * Returns the type (language) property of current agent.
+	 * 
+	 * @return type Language id
+	 */
 	public int getType() {
 		return type;
 	}
 	
+	/**
+	 * Sets the type (language) property of current agent.
+	 * 
+	 * @param type Language id
+	 */
 	public void setType(int type) {
 		this.type = type;
 	}
 	
+	/**
+	 * Returns the machine name of the current agent.
+	 * 
+	 * @return id
+	 */
 	public String getId() {
 		return id;
 	}
 	
+	/**
+	 * Returns the total number of speakers of language X in the current iteration step.
+	 * 
+	 * @return speakersX
+	 */
 	public int getSpeakersX() {
 		int speakersX = this.countSpeakers(1);
 		return speakersX;
 	}
 	
+	/**
+	 * Returns the total number of speakers of language Y in the current iteration step.
+	 * 
+	 * @return speakersY
+	 */
 	public int getSpeakersY() {
 		int speakersX = this.countSpeakers(2);
 		return speakersX;
 	}
 	
+	/**
+	 * Returns the total number of bilingual speakers XY in the current iteration step.
+	 * 
+	 * @return speakersXY
+	 */
 	public int getSpeakersXY() {
 		int speakersX = this.countSpeakers(3);
 		return speakersX;
+	}
+	
+	/**
+	 * Returns the cultural similarity index computed for the active agent in its Moore neighborhood
+	 * 
+	 * @return similarityIndex
+	 */
+	public double getAgentSimilarityIndex() {
+		return this.similarityIndex;
 	}
 
 	public int getOldType() {
@@ -432,7 +514,6 @@ public class Agent {
 	
 	private NeighborhoodCell getNeighborhoodCell() {
         final GridPoint location = getGrid().getLocation(this);
-        //System.out.println("Location: " + location);
         final Iterable<Object> objects = getGrid().getObjectsAt(
                         location.getX(), location.getY());
 
@@ -449,6 +530,7 @@ public class Agent {
         if (object instanceof Agent) {
         	return (Agent) object;
         }
+        
         return null;
 	}
 	
